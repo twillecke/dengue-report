@@ -16,6 +16,7 @@ export type ReportDAO = {
 interface ReportRepository {
 	getAllReports(): Promise<ReportDAO[]>;
 	saveReport(report: DengueReport): Promise<string>;
+	findReportByReportId(id: string): Promise<ReportDAO | null>;
 	deleteReportByReportId(id: string): Promise<void>;
 }
 
@@ -56,6 +57,15 @@ export default class ReportRepositoryDatabase implements ReportRepository {
 			],
 		);
 		return id;
+	}
+
+	async findReportByReportId(id: string): Promise<ReportDAO | null> {
+		const report = await this.connection.query(
+			"SELECT * FROM report WHERE report_id = $1",
+			[id],
+		);
+		if (!report || report.length < 1) return null;
+		return report[0];
 	}
 
 	async deleteReportByReportId(id: string): Promise<void> {
